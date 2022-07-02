@@ -1,4 +1,4 @@
-package WenfeiChase;
+package driverJDBC;
 
 import java.sql.Connection;
 import java.sql.Statement;
