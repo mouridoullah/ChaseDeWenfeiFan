@@ -12,6 +12,7 @@ import org.neo4j.driver.Value;
 import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Relationship;
 import org.neo4j.driver.util.Pair;
+
 import java.util.List;
 
 
@@ -61,22 +62,30 @@ public class GraphDataBaseHanlder implements AutoCloseable {
 	}
 
 	public void init() {
-		String create = "CREATE  (u1:User{id:1,a:1,b:2}),\n" + "		(u2:User{id:2,c:3,d:4}),\n"
-				+ "		(u3:User{id:3,c:3,d:4}),\n" + "		(u4:User{id:2,c:3,d:4}),\n"
-				+ "		(u5:User{id:1,a:1,b:2})\n" + "	   \n" + "CREATE (u3)-[:rel]->(u1)\n"
-				+ "CREATE (u3)-[:rel]->(u2)\n" + "CREATE (u1)-[:rel]->(u5)\n" + "CREATE (u4)-[:rel]->(u2)\n"
-				+ "CREATE (u5)-[:rel]->(u4)\n" + "CREATE (u2)-[:rel]->(u5)";
+		String create = "CREATE (u1:User{id:1,a:1,b:2}),\n" + 
+						"		(u2:User{id:1,c:3,d:4}),\n" + 
+						"		(u3:User{id:3,c:5,d:4}),\n" + 
+						"		(u4:User{id:2,c:3,d:4}),\n" + 
+						"		(u5:User{id:2,a:2,b:3})\n" + 
+						"	   \n" + 
+						"CREATE (u3)-[:rel]->(u1)\n" + 
+						"CREATE (u3)-[:rel]->(u2)\n" + 
+						"CREATE (u1)-[:rel]->(u5)\n" + 
+						"CREATE (u4)-[:rel]->(u2)\n" + 
+						"CREATE (u5)-[:rel]->(u4)\n" + 
+						"CREATE (u2)-[:rel]->(u5)";
 		this.execute(this.getDriver(), create);
 	}
 
-	public void afficherElementInfo(List<Record> result) {
+	public static void afficherElementInfo(List<Record> result) {
 		for (Record record : result) {
 
 			Value value;
 			String key;
 			String typName;
-
+			
 			List<Pair<String, Value>> list = record.fields();
+			
 			for (Pair<String, Value> pair : list) {
 
 				value = pair.value();
@@ -89,7 +98,7 @@ public class GraphDataBaseHanlder implements AutoCloseable {
 						Node node = value.asNode();
 						Long id = value.asNode().id();
 						String idWenfei = value.get("id").toString();
-						System.out.println("NodeKey : " + id + ", Nodelabel : " + node.labels() + ", idWenfei = "
+						System.out.println("NodeKey : " + id + "\nNodelabel : " + node.labels() + "\nWenfeiID = "
 								+ idWenfei + "\n");
 					} else if ("RELATIONSHIP".equals(typName)) {
 
@@ -111,5 +120,23 @@ public class GraphDataBaseHanlder implements AutoCloseable {
 		String del = "MATCH (n)   \n" + "OPTIONAL MATCH (n)-[r]-()\n" + "DELETE n,r";
 		this.execute(this.getDriver(), del);
 	}
+	
+//	public static void main(String[] args) throws Exception {
+//
+//		try (GraphDataBaseHanlder database = new GraphDataBaseHanlder()) {
+//
+//
+//			// creation de la base
+//			database.init();
+//
+//			String query = "MATCH (u:User) WHERE u.a = 1 AND u.b = 2 RETURN u";
+//			List<Record> result = database.execute(database.getDriver(), query);
+//
+//			afficherElementInfo(result);
+//
+//			//database.delete();
+//		}
+//
+//	}
 
 }
