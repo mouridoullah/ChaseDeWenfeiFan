@@ -62,11 +62,11 @@ public class GraphDataBaseHanlder implements AutoCloseable {
 	}
 
 	public void init() {
-		String create = "CREATE (u1:User{id:1,a:1,b:2}),\n" + 
-						"		(u2:User{id:1,c:3,d:4}),\n" + 
-						"		(u3:User{id:3,c:5,d:4}),\n" + 
-						"		(u4:User{id:2,c:3,d:4}),\n" + 
-						"		(u5:User{id:2,a:2,b:3})\n" + 
+		String create = "CREATE (u1:User{s:1,a:1,b:2}),\n" + 
+						"		(u2:User{e:1,c:3,d:4}),\n" + 
+						"		(u3:User{r:3,c:5,d:4}),\n" + 
+						"		(u4:User{t:2,c:3,d:4}),\n" + 
+						"		(u5:User{y:2,a:2,b:3})\n" + 
 						"	   \n" + 
 						"CREATE (u3)-[:rel]->(u1)\n" + 
 						"CREATE (u3)-[:rel]->(u2)\n" + 
@@ -97,9 +97,8 @@ public class GraphDataBaseHanlder implements AutoCloseable {
 					if ("NODE".equals(typName)) {
 						Node node = value.asNode();
 						Long id = value.asNode().id();
-						String idWenfei = value.get("id").toString();
-						System.out.println("NodeKey : " + id + "\nNodelabel : " + node.labels() + "\nWenfeiID = "
-								+ idWenfei + "\n");
+						//String idWenfei = value.get("id").toString();
+						System.out.println("NodeKey : " + id + "\nNodelabel : " + node.labels());
 					} else if ("RELATIONSHIP".equals(typName)) {
 
 						Relationship relationship = value.asRelationship();
@@ -121,22 +120,20 @@ public class GraphDataBaseHanlder implements AutoCloseable {
 		this.execute(this.getDriver(), del);
 	}
 	
-//	public static void main(String[] args) throws Exception {
-//
-//		try (GraphDataBaseHanlder database = new GraphDataBaseHanlder()) {
-//
-//
-//			// creation de la base
-//			database.init();
-//
-//			String query = "MATCH (u:User) WHERE u.a = 1 AND u.b = 2 RETURN u";
-//			List<Record> result = database.execute(database.getDriver(), query);
-//
-//			afficherElementInfo(result);
-//
-//			//database.delete();
-//		}
-//
-//	}
+	public static void main(String[] args) throws Exception {
+
+		try (GraphDataBaseHanlder database = new GraphDataBaseHanlder()) {
+			// creation de la base
+			database.init();
+
+			String query = "MATCH (u:User) WHERE u.a = 1 AND u.b = 2 RETURN u";
+			List<Record> result = database.execute(database.getDriver(), query);
+
+			afficherElementInfo(result);
+
+			//database.delete();
+		}
+
+	}
 
 }

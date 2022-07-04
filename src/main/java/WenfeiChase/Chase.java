@@ -27,19 +27,29 @@ public class Chase {
 			Matcher matcherId = lateralID.matcher(contraint.getHead());
 
 			if (matcherConstant.find()) {
+				// TODO Faire un test pour conflit de d'attribut
 				query = contraint.generateQuery();
 				GraphDataBaseHanlder sgbd = graph.getDatabaseHanlder();
 				result = sgbd.execute(sgbd.getDriver(), query);
 				GraphDataBaseHanlder.afficherElementInfo(result);
-				//System.out.println("OK-C");
+				
 			} else if (matcherVariable.find()) {
+				// TODO Faire un test pour conflit de d'attribut
 				query = contraint.generateQuery();
 				GraphDataBaseHanlder sgbd = graph.getDatabaseHanlder();
 				result = sgbd.execute(sgbd.getDriver(), query);
 				GraphDataBaseHanlder.afficherElementInfo(result);
-				//System.out.println("OK-V");
+				
 			} else if (matcherId.find()) {
+				// TODO Faire un test pour conflit de label de d'attribut
 				// TODO la partie fusionner des nodes
+				/*
+				 * faire un test sur le degree du node()
+				 * creer un nouveau node 
+				 * faire l'union des attribut
+				 * rapporter les arretes sur le nouveau node
+				 * supprimer les nodes avec DETACH DELETE
+				 * */
 			}
 		}
 

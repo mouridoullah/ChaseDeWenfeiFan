@@ -28,7 +28,7 @@ public class Main {
 
 			GraphDataBaseHanlder.afficherElementInfo(result);
 
-			//graph.deleteGraphe();
+			graph.deleteGraphe();
 		}
 
 	}
