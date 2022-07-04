@@ -45,6 +45,7 @@ public class Contraint {
 	public String generateQuery() {
 		return "MATCH "+ this.getContext() +
 			   "\nWHERE "+ this.getBody() +
-			   "\nSET "+ this.getHead();	
+			   "\nSET "+ this.getHead() +
+			   "\nReturn *";	
 	}
 }

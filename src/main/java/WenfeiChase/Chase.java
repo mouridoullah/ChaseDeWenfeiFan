@@ -20,6 +20,7 @@ public class Chase {
 
 		for (Contraint contraint : sigma) {
 			String query;
+			List<Record> resultTest;
 			List<Record> result;
 
 			Matcher matcherConstant = lateralConstant.matcher(contraint.getHead());
@@ -27,18 +28,55 @@ public class Chase {
 			Matcher matcherId = lateralID.matcher(contraint.getHead());
 
 			if (matcherConstant.find()) {
-				// TODO Faire un test pour conflit de d'attribut
-				query = contraint.generateQuery();
 				GraphDataBaseHanlder sgbd = graph.getDatabaseHanlder();
-				result = sgbd.execute(sgbd.getDriver(), query);
-				GraphDataBaseHanlder.afficherElementInfo(result);
+				// TODO Faire un test pour conflit de d'attribut
+				
+				String head = contraint.getHead();
+				String subHead = head.substring(0,3);
+				
+				String queryTest = "MATCH "+contraint.getContext()+
+								   "\nWHERE "+head+
+								   "\nOR "+subHead+" IS NOT NULL"+
+								   "\nRETURN *";
+				
+				resultTest = sgbd.execute(sgbd.getDriver(), queryTest);
+				//GraphDataBaseHanlder.afficherElementInfo(resultTest);
+				
+				if(!resultTest.isEmpty()) {
+					System.out.println("Conflit d'attribut pour la requete \n"+contraint.generateQuery());
+					System.out.println("\n---------------------\n");
+					continue;
+				}else {
+					query = contraint.generateQuery();
+					result = sgbd.execute(sgbd.getDriver(), query);
+					GraphDataBaseHanlder.afficherElementInfo(result);
+					System.out.println("\n---------------------\n");
+				}
 				
 			} else if (matcherVariable.find()) {
-				// TODO Faire un test pour conflit de d'attribut
-				query = contraint.generateQuery();
 				GraphDataBaseHanlder sgbd = graph.getDatabaseHanlder();
-				result = sgbd.execute(sgbd.getDriver(), query);
-				GraphDataBaseHanlder.afficherElementInfo(result);
+				// TODO Faire un test pour conflit de d'attribut
+				
+				String test = contraint.getHead();
+				String subTest = test.substring(0,3);
+				
+				String queryTest = "MATCH "+contraint.getContext()+
+								   "\nWHERE "+contraint.getHead()+
+								   "\nOR "+subTest+" IS NOT NULL"+
+								   "\nRETURN *";
+				
+				resultTest = sgbd.execute(sgbd.getDriver(), queryTest);
+				
+				if(!resultTest.isEmpty()) { 
+					System.out.println("Conflit d'attribut pour la requete \n"+contraint.generateQuery());
+					System.out.println("\n---------------------\n");
+					continue;
+				} else {
+					query = contraint.generateQuery();
+					result = sgbd.execute(sgbd.getDriver(), query);
+					GraphDataBaseHanlder.afficherElementInfo(result);
+					System.out.println("\n---------------------\n");
+				}
 				
 			} else if (matcherId.find()) {
 				// TODO Faire un test pour conflit de label de d'attribut

@@ -62,18 +62,18 @@ public class GraphDataBaseHanlder implements AutoCloseable {
 	}
 
 	public void init() {
-		String create = "CREATE (u1:User{s:1,a:1,b:2}),\n" + 
-						"		(u2:User{e:1,c:3,d:4}),\n" + 
-						"		(u3:User{r:3,c:5,d:4}),\n" + 
-						"		(u4:User{t:2,c:3,d:4}),\n" + 
-						"		(u5:User{y:2,a:2,b:3})\n" + 
-						"	   \n" + 
-						"CREATE (u3)-[:rel]->(u1)\n" + 
-						"CREATE (u3)-[:rel]->(u2)\n" + 
-						"CREATE (u1)-[:rel]->(u5)\n" + 
-						"CREATE (u4)-[:rel]->(u2)\n" + 
-						"CREATE (u5)-[:rel]->(u4)\n" + 
-						"CREATE (u2)-[:rel]->(u5)";
+		String create = "CREATE  (u1:User{id:1,a:1,b:2}),\n" + 
+				"		(u2:User{s:1,c:3,d:4}),\n" + 
+				"		(u3:User{r:3,c:5,d:4}),\n" + 
+				"		(u4:User{o:2,c:3,d:4}),\n" + 
+				"		(u5:User{m:2,a:1,b:3})\n" + 
+				"	   \n" + 
+				"CREATE (u3)-[:rel]->(u1)\n" + 
+				"CREATE (u3)-[:rel]->(u2)\n" + 
+				"CREATE (u1)-[:rel]->(u5)\n" + 
+				"CREATE (u4)-[:rel]->(u2)\n" + 
+				"CREATE (u5)-[:rel]->(u4)\n" + 
+				"CREATE (u2)-[:rel]->(u5)";
 		this.execute(this.getDriver(), create);
 	}
 
