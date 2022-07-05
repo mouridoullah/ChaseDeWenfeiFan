@@ -1,11 +1,12 @@
 package entity;
-
-
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Contraint {
 	private String context;
 	private String body;
 	private String head;
+	private boolean isLiteralId = false;
 	
 	public Contraint() {
 		// TODO Auto-generated constructor stub
@@ -43,9 +44,26 @@ public class Contraint {
 	}
 	
 	public String generateQuery() {
-		return "MATCH "+ this.getContext() +
-			   "\nWHERE "+ this.getBody() +
-			   "\nSET "+ this.getHead() +
-			   "\nReturn *";	
+		Pattern literalID = Pattern.compile("(.\\.id=.\\.id|.\\.id = .\\.id)");
+		Matcher matcherId = literalID.matcher(this.getHead());
+		
+		if(matcherId.find()) {
+			isLiteralId = true;
+		}else {
+			isLiteralId = false;
+		}
+		
+		if(isLiteralId == false) {
+			return "MATCH "+ this.getContext() +
+				   "\nWHERE "+ this.getBody() +
+				   "\nSET "+ this.getHead() +
+				   "\nRETURN *";	
+		} else {
+			return "MATCH "+this.getContext() +
+					"\nWITH head(collect([y,x])) as nodes" + 
+					"\nCALL apoc.refactor.mergeNodes(nodes,{properties:\"combine\", mergeRels:true})" + 
+					"\nYIELD node" + 
+					"\nRETURN node";
+		}
 	}
 }

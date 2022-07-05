@@ -1,13 +1,13 @@
 package entity;
 
-import sgbd.GraphDataBaseHanlder;
+import sgbd.GraphDataBaseHandler;
 
 public class Graph implements AutoCloseable  {
 	private String create;
-	private GraphDataBaseHanlder databaseHanlder;
+	private GraphDataBaseHandler databaseHanlder;
 	
 	public Graph() {
-		databaseHanlder = new GraphDataBaseHanlder();
+		databaseHanlder = new GraphDataBaseHandler();
 		// TODO Auto-generated constructor stub
 	}
 
@@ -19,11 +19,11 @@ public class Graph implements AutoCloseable  {
 		this.create = create;
 	}
 
-	public GraphDataBaseHanlder getDatabaseHanlder() {
+	public GraphDataBaseHandler getDatabaseHanlder() {
 		return databaseHanlder;
 	}
 
-	public void setDatabaseHanlder(GraphDataBaseHanlder databaseHanlder) {
+	public void setDatabaseHanlder(GraphDataBaseHandler databaseHanlder) {
 		this.databaseHanlder = databaseHanlder;
 	}
 	

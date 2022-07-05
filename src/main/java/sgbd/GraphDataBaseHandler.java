@@ -16,14 +16,14 @@ import org.neo4j.driver.util.Pair;
 import java.util.List;
 
 
-public class GraphDataBaseHanlder implements AutoCloseable {
+public class GraphDataBaseHandler implements AutoCloseable {
 	private final Driver driver;
 	private final String uri = "bolt://localhost:7687";
 	private final String user = "neo4j";
 	private final String password = "test";
 	private final Config config;
 
-	public GraphDataBaseHanlder() {
+	public GraphDataBaseHandler() {
 		config = Config.builder().withLogging(Logging.slf4j()).build();
 		driver = GraphDatabase.driver(this.getUri(), AuthTokens.basic(this.getUser(), this.getPassword()), config);
 	}
@@ -62,18 +62,22 @@ public class GraphDataBaseHanlder implements AutoCloseable {
 	}
 
 	public void init() {
-		String create = "CREATE  (u1:User{id:1,a:1,b:2}),\n" + 
-				"		(u2:User{s:1,c:3,d:4}),\n" + 
-				"		(u3:User{r:3,c:5,d:4}),\n" + 
-				"		(u4:User{o:2,c:3,d:4}),\n" + 
-				"		(u5:User{m:2,a:1,b:3})\n" + 
-				"	   \n" + 
-				"CREATE (u3)-[:rel]->(u1)\n" + 
-				"CREATE (u3)-[:rel]->(u2)\n" + 
-				"CREATE (u1)-[:rel]->(u5)\n" + 
-				"CREATE (u4)-[:rel]->(u2)\n" + 
-				"CREATE (u5)-[:rel]->(u4)\n" + 
-				"CREATE (u2)-[:rel]->(u5)";
+		String create = "CREATE (person1:Person {name:'toto',s:1,a:1,b:2}),\n" + 
+				"(person2:Person {name:'titi',f:2,c:3,d:4}),\n" + 
+				"(company1:Company {name:'Company1',p:5,a:1,b:2}),\n" + 
+				"(car:Car {brand:'Ferrari'}),\n" + 
+				"(animal:Cat {name:'Derby',k:4}),\n" + 
+				"(city1:City {name:'London',g:3,c:3,d:4}),\n" + 
+				"(person1)-[:WORKS_FOR {since:2015}]->(company1),\n" + 
+				"(person2)-[:WORKS_FOR {since:2018}]->(company1),\n" + 
+				"(company1)-[:HAS_HQ {since:2004}]->(city1),\n" + 
+				"(person1)-[:DRIVE {since:2017}]->(car),\n" + 
+				"(person2)-[:HAS {since:2013}]->(animal),\n" + 
+				"(company2:Company {name:'Company2', o:2,c:3,d:4}),\n" +  
+				"(city2:City {name:'Liverpool',o:2,c:3,d:4}),\n" + 
+				"(person2)-[:WORKS_FOR{since:2018}]->(company2),\n" +
+				"(person1)-[:WORKS_FOR {since:2020}]->(person2),\n" +
+				"(company2)-[:HAS_HQ{since:2007}]->(city2)\n";
 		this.execute(this.getDriver(), create);
 	}
 
@@ -122,7 +126,7 @@ public class GraphDataBaseHanlder implements AutoCloseable {
 	
 	public static void main(String[] args) throws Exception {
 
-		try (GraphDataBaseHanlder database = new GraphDataBaseHanlder()) {
+		try (GraphDataBaseHandler database = new GraphDataBaseHandler()) {
 			// creation de la base
 			database.init();
 
