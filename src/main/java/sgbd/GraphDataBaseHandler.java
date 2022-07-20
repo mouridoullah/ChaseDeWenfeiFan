@@ -14,7 +14,7 @@ import org.neo4j.driver.types.Relationship;
 import org.neo4j.driver.util.Pair;
 
 import java.util.List;
-
+import java.util.Map;
 
 public class GraphDataBaseHandler implements AutoCloseable {
 	private final Driver driver;
@@ -62,22 +62,22 @@ public class GraphDataBaseHandler implements AutoCloseable {
 	}
 
 	public void init() {
-		String create = "CREATE (person1:Person {name:'toto',s:1,a:1,b:2}),\n" + 
-				"(person2:Person {name:'titi',f:2,c:3,d:4}),\n" + 
-				"(company1:Company {name:'Company1',p:5,a:1,b:2}),\n" + 
-				"(car:Car {brand:'Ferrari'}),\n" + 
-				"(animal:Cat {name:'Derby',k:4}),\n" + 
-				"(city1:City {name:'London',g:3,c:3,d:4}),\n" + 
-				"(person1)-[:WORKS_FOR {since:2015}]->(company1),\n" + 
-				"(person2)-[:WORKS_FOR {since:2018}]->(company1),\n" + 
-				"(company1)-[:HAS_HQ {since:2004}]->(city1),\n" + 
-				"(person1)-[:DRIVE {since:2017}]->(car),\n" + 
-				"(person2)-[:HAS {since:2013}]->(animal),\n" + 
-				"(company2:Company {name:'Company2', o:2,c:3,d:4}),\n" +  
-				"(city2:City {name:'Liverpool',o:2,c:3,d:4}),\n" + 
-				"(person2)-[:WORKS_FOR{since:2018}]->(company2),\n" +
-				"(person1)-[:WORKS_FOR {since:2020}]->(person2),\n" +
-				"(company2)-[:HAS_HQ{since:2007}]->(city2)\n";
+		String create = "CREATE (person4:Person {a:1})\n" +
+				"CREATE (person5:Person {a:1, b:2})\n" +
+				"CREATE (person3:Person {b:2})\n" +
+				"CREATE (person4)-[:WORKS_FOR]->(person5)\n" +
+				"CREATE (person5)-[:WORKS_FOR]->(person3)\n"
+				+ "CREATE (person1:Person {firstname:'toto',s:1,a:1,b:2}),\n"
+				+ "(person2:Person {lastname:'titi',f:2,c:3,d:4}),\n"
+				+ "(company1:Company {alias:'Company1',p:5,a:1,b:2}),\n" + "(car:Car {brand:'Ferrari'}),\n"
+				+ "(animal:Cat {name:'Derby',k:4}),\n" + "(city1:City {name:'London',g:3,c:3,d:4}),\n"
+				+ "(person1)-[:WORKS_FOR {since:2015}]->(company1),\n"
+				+ "(person2)-[:WORKS_FOR {since:2018}]->(company1),\n" + "(company1)-[:HAS_HQ {since:2004}]->(city1),\n"
+				+ "(person1)-[:DRIVE {since:2017}]->(car),\n" + "(person2)-[:HAS {since:2013}]->(animal),\n"
+				+ "(company2:Company {name:'Company2', o:2,c:3,d:4}),\n"
+				+ "(city2:City {name:'Liverpool',o:2,c:3,d:4}),\n" + "(person2)-[:WORKS_FOR{since:2018}]->(company2),\n"
+				+ "(person1)-[:WORKS_FOR {since:2020}]->(person2),\n" + "(company2)-[:HAS_HQ{since:2007}]->(city2)\n"
+				+ "CREATE (person5)-[:LIVE{since:2000}]->(city2)";
 		this.execute(this.getDriver(), create);
 	}
 
@@ -87,22 +87,30 @@ public class GraphDataBaseHandler implements AutoCloseable {
 			Value value;
 			String key;
 			String typName;
-			
+			Map<String, Object> map;
+
 			List<Pair<String, Value>> list = record.fields();
-			
+
 			for (Pair<String, Value> pair : list) {
 
 				value = pair.value();
 				key = pair.key();
-				System.out.println("---- {RecordKey : " + key + "} ----");
+				System.out.println(" {RecordKey : " + key + "} ");
 
 				if (value != null) {
 					typName = value.type().name(); // NODE, RELATIONSHIP, NULL
 					if ("NODE".equals(typName)) {
 						Node node = value.asNode();
 						Long id = value.asNode().id();
-						//String idWenfei = value.get("id").toString();
 						System.out.println("NodeKey : " + id + "\nNodelabel : " + node.labels());
+
+						map = value.asMap();
+
+						System.out.print("{ ");
+						for (Map.Entry<String, Object> entry : map.entrySet()) {
+							System.out.print(entry.getKey() + ":" + entry.getValue().toString()+" ");
+						}
+						System.out.print("}\n");
 					} else if ("RELATIONSHIP".equals(typName)) {
 
 						Relationship relationship = value.asRelationship();
@@ -122,22 +130,6 @@ public class GraphDataBaseHandler implements AutoCloseable {
 	public void delete() {
 		String del = "MATCH (n)   \n" + "OPTIONAL MATCH (n)-[r]-()\n" + "DELETE n,r";
 		this.execute(this.getDriver(), del);
-	}
-	
-	public static void main(String[] args) throws Exception {
-
-		try (GraphDataBaseHandler database = new GraphDataBaseHandler()) {
-			// creation de la base
-			database.init();
-
-			String query = "MATCH (u:User) WHERE u.a = 1 AND u.b = 2 RETURN u";
-			List<Record> result = database.execute(database.getDriver(), query);
-
-			afficherElementInfo(result);
-
-			//database.delete();
-		}
-
 	}
 
 }

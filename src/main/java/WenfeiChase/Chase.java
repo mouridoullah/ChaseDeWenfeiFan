@@ -1,15 +1,10 @@
 package WenfeiChase;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.neo4j.driver.Record;
-import org.neo4j.driver.Value;
-import org.neo4j.driver.types.Node;
-import org.neo4j.driver.util.Pair;
-
 import entity.Contraint;
 import entity.Graph;
 import sgbd.GraphDataBaseHandler;
@@ -23,96 +18,87 @@ public class Chase {
 				.compile("([a-zA-Z]\\.[a-zA-Z]=[a-zA-Z]\\.[a-zA-Z]|[a-zA-Z]\\.[a-zA-Z] = [a-zA-Z]\\.[a-zA-Z])");
 		Pattern literalID = Pattern.compile("(.\\.id=.\\.id|.\\.id = .\\.id)");
 
-		for (Contraint contraint : sigma) {
-			String query;
-			List<Record> resultTest;
-			List<Record> result;
-			GraphDataBaseHandler sgbd = graph.getDatabaseHanlder();
-			String head;
-			String subHead;
-			String queryTest;
+		String query;
+		List<Record> result;
+		GraphDataBaseHandler sgbd = graph.getDatabaseHanlder();
+		int resultatTest;
 
+		for (Contraint contraint : sigma) {
 			Matcher matcherConstant = literalConstant.matcher(contraint.getHead());
 			Matcher matcherVariable = literalVariable.matcher(contraint.getHead());
 			Matcher matcherId = literalID.matcher(contraint.getHead());
 
 			if (matcherConstant.find()) {
-				head = contraint.getHead();
-				subHead = head.substring(0, 3);
+				resultatTest = TestConflit.conflitAttribut(contraint, graph);
 
-				queryTest = "MATCH " + contraint.getContext() + "\nWHERE " + head + "\nOR " + subHead + " IS NOT NULL"
-						+ "\nRETURN *";
-
-				resultTest = sgbd.execute(sgbd.getDriver(), queryTest);
-				// GraphDataBaseHanlder.afficherElementInfo(resultTest);
-
-				if (!resultTest.isEmpty()) {
-					System.out.println("Conflit d'attribut pour la requete \n" + contraint.generateQuery());
-					System.out.println("\n---------------------\n");
+				if (resultatTest == 1) {
+					System.out.println(contraint.afficherRequete()+"\n");
+					System.out.println("Le graphe satisfait déjà la contrainte :\n" + contraint.afficherContraint());
+					System.out.println("\n---------------------------------------------------------------\n");
 					continue;
-				} else {
-					query = contraint.generateQuery();
+				} else if (resultatTest == 2) {
+					System.out.println(contraint.afficherRequete()+"\n");
+					query = "MATCH " + contraint.getContext() + " WHERE " + contraint.getBody() + " RETURN "
+							+ contraint.getHead().substring(0, 1); // + "{.*}";
 					result = sgbd.execute(sgbd.getDriver(), query);
 					GraphDataBaseHandler.afficherElementInfo(result);
-					System.out.println("\n---------------------\n");
+
+					System.out.println(
+							"\nConflit de valeur d'attribut car " + contraint.getHead().substring(0, 3) + " est non nul");
+					System.out.println("\n---------------------------------------------------------------\n");
+					continue;
+				} else {
+					appliquerContraint(sgbd, contraint);
 				}
 
 			} else if (matcherVariable.find()) {
-				head = contraint.getHead();
-				subHead = head.substring(0, 3);
-
-				queryTest = "MATCH " + contraint.getContext() + "\nWHERE " + contraint.getHead() + "\nOR " + subHead
-						+ " IS NOT NULL" + "\nRETURN *";
-
-				resultTest = sgbd.execute(sgbd.getDriver(), queryTest);
-
-				if (!resultTest.isEmpty()) {
-					System.out.println("Conflit d'attribut pour la requete \n" + contraint.generateQuery());
-					System.out.println("\n---------------------\n");
+				resultatTest = TestConflit.conflitAttribut(contraint, graph);
+				if (resultatTest == 1) {
+					System.out.println(contraint.afficherRequete()+"\n");
+					System.out.println("Le graphe satisfait déjà la contrainte \n" + contraint.afficherContraint());
+					System.out.println("\n---------------------------------------------------------------\n");
 					continue;
-				} else {
-					query = contraint.generateQuery();
+				} else if (resultatTest == 2) {
+					System.out.println(contraint.afficherRequete()+"\n");
+					query = "MATCH " + contraint.getContext() + " WHERE " + contraint.getBody() + " RETURN "
+							+ contraint.getHead().substring(0, 1); // + "{.*}";
 					result = sgbd.execute(sgbd.getDriver(), query);
 					GraphDataBaseHandler.afficherElementInfo(result);
-					System.out.println("\n---------------------\n");
+					System.out.println(
+							"Conflit de valeur d'attribut car " + contraint.getHead().substring(0, 3) + " est non nul");
+					System.out.println("\n---------------------------------------------------------------\n");
+					continue;
+				} else {
+					appliquerContraint(sgbd, contraint);
 				}
 
 			} else if (matcherId.find()) {
-				queryTest = "MATCH " + contraint.getContext() + " RETURN * LIMIT 2";
-				resultTest = sgbd.execute(sgbd.getDriver(), queryTest);
+				if (TestConflit.conflitLabel(contraint, graph)) {
+					System.out.println(contraint.afficherRequete()+"\n");
+					System.out.println("Conflit de label pour la contrainte :\n" + contraint.afficherContraint());
+					System.out.println("\n---------------------------------------------------------------\n");
+					continue;
+				} else {
+					Map<String, Object> mapX = TestConflit.getNode(contraint, "x");
+					Map<String, Object> mapY = TestConflit.getNode(contraint, "y");
 
-				Value value;
-				List<Node> listNode = new ArrayList<Node>();
-				String typName;
-				Node node1;
-				Node node2;
-
-				if (!resultTest.isEmpty()) {
-					for (Record record : resultTest) {
-
-						List<Pair<String, Value>> list = record.fields();
-
-						for (Pair<String, Value> pair : list) {
-							value = pair.value();
-							typName = value.type().name();
-
-							if ("NODE".equals(typName)) {
-								listNode.add(value.asNode());
+					boolean found = false;
+					for (String key1 : mapX.keySet()) {
+						for (String key2 : mapY.keySet()) { 
+							if (key1.equals(key2)) {
+								if(!mapX.get(key1).equals(mapY.get(key2))) {
+									found = true;
+								}
 							}
 						}
 					}
-					node1 = listNode.get(0);
-					node2 = listNode.get(listNode.size() - 1);
 
-					if (!node1.labels().equals(node2.labels())) {
-						System.out.println("Conflit de label pour la requete\n" + contraint.generateQuery());
-						System.out.println("\n---------------------\n");
+					if (found) {
+						System.out.println("Les noeuds partagent un ou plusieurs attributs communs");
+						System.out.println("\n---------------------------------------------------------------\n");
 						continue;
 					} else {
-						query = contraint.generateQuery();
-						result = sgbd.execute(sgbd.getDriver(), query);
-						GraphDataBaseHandler.afficherElementInfo(result);
-						System.out.println("\n---------------------\n");
+						appliquerContraint(sgbd, contraint);
 					}
 				}
 
@@ -121,4 +107,13 @@ public class Chase {
 
 	}
 
+	private static void appliquerContraint(GraphDataBaseHandler sgbd, Contraint contraint) {
+		String query;
+		List<Record> result;
+		System.out.println(contraint.afficherRequete()+"\n");
+		query = contraint.generateQuery();
+		result = sgbd.execute(sgbd.getDriver(), query);
+		GraphDataBaseHandler.afficherElementInfo(result);
+		System.out.println("\n--------------------------------------------------------------\n");
+	}
 }
