@@ -20,7 +20,7 @@ public class GraphDataBaseHandler implements AutoCloseable {
 	private final Driver driver;
 	private final String uri = "bolt://localhost:7687";
 	private final String user = "neo4j";
-	private final String password = "test";
+	private final String password = "password";
 	private final Config config;
 
 	public GraphDataBaseHandler() {
@@ -62,16 +62,17 @@ public class GraphDataBaseHandler implements AutoCloseable {
 	}
 
 	public void init() {
-		String create = "CREATE (person4:Person {a:1})\n" +
-				"CREATE (person5:Person {a:1, b:2})\n" +
-				"CREATE (person3:Person {b:2})\n" +
+		String create = "CREATE (person4:Person {m:1, t:4})\n" +
+				"CREATE (person5:Person {w:2})\n" +
+				"CREATE (person3:Person {w:2})\n" +
 				"CREATE (person4)-[:WORKS_FOR]->(person5)\n" +
-				"CREATE (person5)-[:WORKS_FOR]->(person3)\n"
+				"CREATE (person5)-[:FRIEND]->(person3)\n"
 				+ "CREATE (person1:Person {firstname:'toto',s:1,a:1,b:2}),\n"
 				+ "(person2:Person {lastname:'titi',f:2,c:3,d:4}),\n"
 				+ "(company1:Company {alias:'Company1',p:5,a:1,b:2}),\n" + "(car:Car {brand:'Ferrari'}),\n"
 				+ "(animal:Cat {name:'Derby',k:4}),\n" + "(city1:City {name:'London',g:3,c:3,d:4}),\n"
 				+ "(person1)-[:WORKS_FOR {since:2015}]->(company1),\n"
+				+ "(person3)-[:FOLLOWS]->(person2),\n"
 				+ "(person2)-[:WORKS_FOR {since:2018}]->(company1),\n" + "(company1)-[:HAS_HQ {since:2004}]->(city1),\n"
 				+ "(person1)-[:DRIVE {since:2017}]->(car),\n" + "(person2)-[:HAS {since:2013}]->(animal),\n"
 				+ "(company2:Company {name:'Company2', o:2,c:3,d:4}),\n"
@@ -98,7 +99,7 @@ public class GraphDataBaseHandler implements AutoCloseable {
 				System.out.println(" {RecordKey : " + key + "} ");
 
 				if (value != null) {
-					typName = value.type().name(); // NODE, RELATIONSHIP, NULL
+					typName = value.type().name(); 
 					if ("NODE".equals(typName)) {
 						Node node = value.asNode();
 						Long id = value.asNode().id();
@@ -110,7 +111,7 @@ public class GraphDataBaseHandler implements AutoCloseable {
 						for (Map.Entry<String, Object> entry : map.entrySet()) {
 							System.out.print(entry.getKey() + ":" + entry.getValue().toString()+" ");
 						}
-						System.out.print("}\n");
+						System.out.print("}\n\n");
 					} else if ("RELATIONSHIP".equals(typName)) {
 
 						Relationship relationship = value.asRelationship();

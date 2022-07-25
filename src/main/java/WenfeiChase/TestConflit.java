@@ -22,88 +22,136 @@ public class TestConflit {
 	private static List<Record> resultTestConflit;
 	private static List<Record> resultTestSatisfaction;
 
+
+	public static boolean testSatisfaction1(Contraint contraint, Graph graph) {
+		sgbd = graph.getDatabaseHanlder();
+		head = contraint.getHead();
+		subHead = head.substring(0, 3);
+		queryTestSatisfaction = "MATCH " + contraint.getContext() + 
+								"\nWHERE " + head + 
+								"\nRETURN *";
+		resultTestSatisfaction = sgbd.execute(sgbd.getDriver(), queryTestSatisfaction);
+		
+		if(resultTestSatisfaction.isEmpty()) {					
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	public static boolean testSatisfaction2(Contraint contraint, Graph graph) {
+		sgbd = graph.getDatabaseHanlder();
+		head = contraint.getHead();
+		subHead = head.substring(0, 3);
+		queryTestSatisfaction = contraint.getBody() != null ? "MATCH " + contraint.getContext() + 
+															  "\nWHERE " + contraint.getBody() + " AND NOT exists("+subHead+")" +
+															  "\nRETURN *"
+															  : "MATCH " + contraint.getContext() + 
+															  "\nWHERE NOT exists("+subHead+")" +
+															  "\nRETURN *";
+		
+		resultTestSatisfaction = sgbd.execute(sgbd.getDriver(), queryTestSatisfaction);
+		
+		if(resultTestSatisfaction.isEmpty()) {					
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
 	public static int conflitAttribut(Contraint contraint, Graph graph) {
 		sgbd = graph.getDatabaseHanlder();
 		head = contraint.getHead();
 		subHead = head.substring(0, 3);
+		
+		String query = contraint.getBody() != null ? "MATCH " + contraint.getContext() + 
+													 "\nWHERE " + contraint.getBody() + 
+													 "\nRETURN *"
+												   : "MATCH " + contraint.getContext() + 
+													 "\nRETURN *";
+		
+		List<Record>  res = sgbd.execute(sgbd.getDriver(), query);
+		
+		if(!res.isEmpty()) {
+			queryTestConflit = "MATCH " + contraint.getContext() + 
+							   "\nWHERE " + subHead + " IS NOT NULL" + 
+							   "\nRETURN *";
+			resultTestConflit = sgbd.execute(sgbd.getDriver(), queryTestConflit);
+			if(!resultTestConflit.isEmpty()) {
+				if(testSatisfaction1(contraint, graph)) {
+					return 1;
+				}else {
+					return 2;
+				}
 
-		queryTestConflit = "MATCH " + contraint.getContext() + "\nWHERE " + subHead + " IS NOT NULL" + "\nRETURN *";
-		resultTestConflit = sgbd.execute(sgbd.getDriver(), queryTestConflit);
-
-		queryTestSatisfaction = "MATCH " + contraint.getContext() + "\nWHERE " + head + "\nRETURN *";
-		resultTestSatisfaction = sgbd.execute(sgbd.getDriver(), queryTestSatisfaction);
-
-		if (!resultTestSatisfaction.isEmpty() && !resultTestConflit.isEmpty()) {
-			return 1;
-		} else if (!resultTestConflit.isEmpty()) {
-			return 2;
+			} else {
+				return 3;
+			}
 		} else {
-			return 3;
+			return 4;
 		}
-
 	}
 
-	public static boolean conflitLabel(Contraint contraint, Graph graph) {
+	public static int conflitLabel(Contraint contraint, Graph graph) {
 		sgbd = graph.getDatabaseHanlder();
-		queryTestConflit = "\nMATCH " + contraint.getContext() + 
-							"\nWHERE " + contraint.getBody() +
-							"\nRETURN * LIMIT 2";
+		
+		queryTestConflit = contraint.getBody() != null 
+												? "MATCH " + contraint.getContext() + 
+												  "\nWHERE " + contraint.getBody() +
+												  "\nRETURN * LIMIT 2" 
+												  
+												: "MATCH " + contraint.getContext() + 
+												  "\nRETURN * LIMIT 2";
 		
 		resultTestConflit = sgbd.execute(sgbd.getDriver(), queryTestConflit);
 		
-		Value value;
-		List<Node> listNode = new ArrayList<Node>();
+		if(!resultTestConflit.isEmpty()) {
+			Value value;
+			List<Node> listNode = new ArrayList<Node>();
 
-		for (Record record : resultTestConflit) {
-			List<Pair<String, Value>> list = record.fields();
-			for (Pair<String, Value> pair : list) {
-				value = pair.value();
-				if ("NODE".equals(value.type().name())) {
-					listNode.add(value.asNode());
+			for (Record record : resultTestConflit) {
+				List<Pair<String, Value>> list = record.fields();
+				for (Pair<String, Value> pair : list) {
+					value = pair.value();
+					if ("NODE".equals(value.type().name())) {
+						listNode.add(value.asNode());
+					}
 				}
 			}
-		}
-		 
-		List<Object> listLabel = new ArrayList<Object>();
-		
-		for (Node node : listNode) {
-			listLabel.add(node.labels());
-		}
-		
-		if(listLabel.get(0).equals(listLabel.get(listLabel.size() - 1))) {
-			return false;
-		}else {
-			return true;
+			 
+			List<Object> listLabel = new ArrayList<Object>();
+			
+			for (Node node : listNode) {
+				listLabel.add(node.labels());
+			}
+			
+			if(listLabel.get(0).equals(listLabel.get(listLabel.size() - 1))) {
+				return 1;
+			}else {
+				return 2;
+			}
+		} else {
+			return 3;
 		}
 	}
 
 	public static Map<String, Object> getNode(Contraint contraint, String sub) {
 		String query;
 		List<Record> result;
-		if (sub == "x") {
-			query = "MATCH " + contraint.getContext() + "\nWHERE " + contraint.getBody() + "\nRETURN "
-					+ contraint.getHead().substring(0, 1);
-			result = sgbd.execute(sgbd.getDriver(), query);
-			if (!result.isEmpty()) {
-				for (Record record : result) {
-					List<Pair<String, Value>> list = record.fields();
-					for (Pair<String, Value> pair : list) {
-						Value value = pair.value();
-						return value.asMap();
-					}
-				}
-			}
-		} else if (sub == "y") {
-			query = "MATCH " + contraint.getContext() + "\nWHERE " + contraint.getBody() + "\nRETURN "
-					+ contraint.getHead().substring(7, 8);
-			result = sgbd.execute(sgbd.getDriver(), query);
-			if (!result.isEmpty()) {
-				for (Record record : result) {
-					List<Pair<String, Value>> list = record.fields();
-					for (Pair<String, Value> pair : list) {
-						Value value = pair.value();
-						return value.asMap();
-					}
+		
+		final String res = sub == "x" 
+				  ? contraint.getHead().substring(0, 1) 
+				  : contraint.getHead().substring(7, 8);
+		
+		query = "MATCH " + contraint.getContext() + "\nWHERE " + contraint.getBody() + "\nRETURN "
+				+ res;
+		result = sgbd.execute(sgbd.getDriver(), query);
+		if (!result.isEmpty()) {
+			for (Record record : result) {
+				List<Pair<String, Value>> list = record.fields();
+				for (Pair<String, Value> pair : list) {
+					Value value = pair.value();
+					return value.asMap();
 				}
 			}
 		}

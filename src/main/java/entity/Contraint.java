@@ -41,9 +41,11 @@ public class Contraint {
 		if (this.body.size() >= 2) {
 			resultBody = String.join(delimiter, body);
 			return resultBody;
-		} else {
+		} else if(this.body.size() == 1){
 			resultBody = this.body.get(0);
 			return resultBody;
+		}else {
+			return null;
 		}
 	}
 
@@ -60,8 +62,14 @@ public class Contraint {
 	}
 
 	public String afficherContraint() {
-		return this.getContext().toString() + "(" + this.getBody().toString() + " -> " + this.getHead().toString()
+		if(!this.body.isEmpty()) {
+			String resultBody = String.join(", ", body);
+			return this.getContext().toString() + "(" + resultBody + " --> " + this.getHead().toString()
 				+ ")";
+		} else {
+			return this.getContext().toString() + "(Ø --> " + this.getHead().toString()
+					+ ")";
+		}
 	}
 	
 	public String afficherRequete() {
@@ -74,9 +82,23 @@ public class Contraint {
 		
 		if(!this.body.isEmpty()) {
 			if (matcherId.find()) {
-				return "MATCH " + this.getContext() + 
-						"\nWHERE " + this.getBody() + 
-						"\nWITH head(collect([x, y])) as nodes" + 
+				 								
+				return	
+//						"MATCH " + this.getContext() + 
+//						"\nMATCH (y)<-[r1]-()" +
+//						"\nWHERE NOT (x)-[]-(x) AND " + this.getBody() + 
+//						"\nSET x += y" +
+//						"\nWITH *" +
+//						"\nCALL apoc.refactor.to(r1, x) YIELD input, output " +
+//						"\nMATCH (y)-[r2]->() " +
+//						"\nCALL apoc.refactor.from(r2, x) YIELD input AS i, output AS o " +
+//						"\nDELETE y" +
+//						"\nRETURN x LIMIT 1;";
+						
+//												
+						"MATCH " + this.getContext() + 
+						"\nWHERE id(x)<>id(y) AND " + this.getBody() + 
+						"\nWITH head(collect(DISTINCT[x, y])) as nodes" + 
 						"\nCALL apoc.refactor.mergeNodes(nodes,{properties:\"combine\", mergeRels:true})" + 
 						"\nYIELD node" + 
 						"\nRETURN node";
@@ -86,10 +108,25 @@ public class Contraint {
 						"\nSET " + this.getHead() + 
 						"\nRETURN "	+ this.getHead().substring(0, 1); // * LIMIT 2;
 			}
-		}else {
+		}else {  
 			if (matcherId.find()) {
-				return "MATCH " + this.getContext() + 
-						"\nWITH head(collect([x, y])) as nodes" + 
+				return  
+//						"MATCH " + this.getContext() + 
+//						"\nMATCH (y)<-[r1]-()" +
+//						"\nWHERE NOT (x)-[]-(x) AND " + 
+//						"\nSET x += y" +
+//						"\nWITH *" +
+//						"\nCALL apoc.refactor.to(r1, x) YIELD input, output " +
+//						"\nMATCH (y)-[r2]->() " +
+//						"\nCALL apoc.refactor.from(r2, x) YIELD input AS i, output AS o " +
+//						"\nDELETE y" +
+//						"\nRETURN x LIMIT 1;";
+						
+						
+						
+						"MATCH " + this.getContext() + 
+						"\nWHERE id(x)<>id(y)" +  
+						"\nWITH head(collect(DISTINCT[x, y])) as nodes" + 
 						"\nCALL apoc.refactor.mergeNodes(nodes,{properties:\"combine\", mergeRels:true})" + 
 						"\nYIELD node" + 
 						"\nRETURN node";

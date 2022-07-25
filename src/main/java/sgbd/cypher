@@ -1,0 +1,130 @@
+MATCH (x:User), (y:User)
+WHERE NOT (y)-[]-() 
+AND x.id = y.id AND x.a IS NOT NULL OR y.c IS NOT NULL
+SET x.c = y.c, x.d = y.d
+DELETE y
+RETURN x.id
+
+
+CREATE  (u1:User{id:1,a:1,b:2}),
+		(u2:User{id:2,c:3,d:4}),
+		(u3:User{id:3,c:3,d:4}),
+		(u4:User{id:2,c:3,d:4}),
+		(u5:User{id:5,a:1,b:2})
+	   
+CREATE (u3)-[:rel]->(u1)
+CREATE (u3)-[:rel]->(u2)
+CREATE (u1)-[:rel]->(u5)
+CREATE (u4)-[:rel]->(u2)
+CREATE (u5)-[:rel]->(u4)
+CREATE (u2)-[:rel]->(u5)
+	   
+MATCH (n)   
+OPTIONAL MATCH (n)-[r]-()
+DELETE n,r
+
+MATCH (p:Product) 
+WHERE p.price='1950' 
+RETURN keys(p);
+
+MATCH (person1:Person) 
+RETURN person1{.*}; 
+
+--------------------------------------------------------------
+CREATE (n1:Node1)
+CREATE (n2:Node2)
+CREATE (target1:Target)
+CREATE (target2:Target)
+CREATE (target3:Target)
+CREATE (target4:Target)
+CREATE (n1)-[:REL]->(target1)
+CREATE (n1)-[:REL]->(target2)
+CREATE (n1)-[:REL]->(target3)
+CREATE (n1)<-[:REL]-(target4)
+CREATE (n1)<-[:REL]-(n2)
+CREATE (n2)<-[:REL]-(n1);
+
+MATCH (x:Node2), (y:Node1)
+MATCH (y)<-[r1]-()
+CALL apoc.refactor.to(r1, x) YIELD input, output
+SET x+=y
+DELETE y
+RETURN *;
+
+MATCH (x:Node2), (y:Node1)
+MATCH (y)-[r2]->()
+CALL apoc.refactor.from(r2, x) YIELD input AS i, output AS o
+RETURN *;
+
+--------------------------------------------------------------
+MATCH (x:Person), (y:Person)
+WHERE x.firstname = 'toto' AND y.lastname = 'titi'
+MATCH (y)-[r2]->()
+CALL apoc.refactor.from(r2, x) YIELD input AS i, output AS o
+RETURN *;
+
+
+MATCH (x:Person), (y:Person)
+WHERE x.firstname = 'toto' AND y.lastname = 'titi'
+MATCH (y)<-[r1]-()
+CALL apoc.refactor.to(r1, x) YIELD input, output
+SET x+=y
+DETACH DELETE y
+RETURN *;
+
+
+MATCH (x:Person), (y:Person)
+WHERE NOT (x)-[]-(x) AND x.firstname = 'toto' AND y.lastname = 'titi'
+MATCH (y)-[r2]->()
+CALL apoc.refactor.from(r2, x) YIELD input AS i, output AS o
+RETURN *;
+
+
+MATCH (x:Person), (y:Person)
+WHERE NOT (x)-[]-(x) AND x.firstname = 'toto' AND y.lastname = 'titi'
+MATCH (y)<-[r1]-()
+CALL apoc.refactor.to(r1, x) YIELD input, output
+SET x+=y
+DETACH DELETE y
+RETURN *;
+--------------------------------------------------------------
+MATCH (x:Person)-[]->(y:Person)
+WHERE id(x)<>id(y) AND x.m = 1 AND y.w = 2
+WITH head(collect(DISTINCT[x, y])) as nodes
+CALL apoc.refactor.mergeNodes(nodes,{properties:"combine", mergeRels:true})
+YIELD node
+RETURN node
+
+
+MATCH (x:Person), (y:Person)
+WHERE id(x)<>id(y) AND x.firstname = 'toto' AND y.lastname = 'titi'
+WITH head(collect(DISTINCT[x, y])) as nodes
+CALL apoc.refactor.mergeNodes(nodes,{properties:"combine", mergeRels:true})
+YIELD node
+RETURN node
+
+
+MATCH (x:Person)-[]->(y:Person)
+WHERE NOT (x)-[]-(x) AND x.m = 1 AND y.w = 2
+MATCH (y)-[r2]->()
+CALL apoc.refactor.from(r2, x) YIELD input AS i, output AS o
+RETURN *;
+
+
+MATCH (x:Person)-[]->(y:Person)
+WHERE NOT (x)-[]-(x) AND x.m = 1 AND y.w = 2
+MATCH (y)<-[r1]-()
+CALL apoc.refactor.to(r1, x) YIELD input, output
+SET x+=y
+DETACH DELETE y
+RETURN *;
+--------------------------------------------------------------
+
+
+
+
+
+
+
+
+
