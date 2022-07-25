@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package entity;
 
 import java.util.ArrayList;
@@ -6,10 +9,18 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * @author bdvm
+ *
+ */
 public class Contraint {
 	private String context;
 	private List<String> body;
 	private String head;
+	
+	/**
+	 * 
+	 */
 
 	public Contraint() {
 		// TODO Auto-generated constructor stub
@@ -67,7 +78,7 @@ public class Contraint {
 			return this.getContext().toString() + "(" + resultBody + " --> " + this.getHead().toString()
 				+ ")";
 		} else {
-			return this.getContext().toString() + "(Ø --> " + this.getHead().toString()
+			return this.getContext().toString() + "(Ø -> " + this.getHead().toString()
 					+ ")";
 		}
 	}

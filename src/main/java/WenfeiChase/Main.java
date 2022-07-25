@@ -1,16 +1,28 @@
+/**
+ * 
+ */
 package WenfeiChase;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import entity.Contraint;
 import entity.Graph;
 
+
+/**
+ * @author bdvm
+ *
+ */
+
 public class Main {
-	public static void main(String[] args) throws Exception {
+	/**
+	 * 
+	 */
+	public static void main(String[] args) {
 		try (Graph graph = new Graph()) {
 			graph.deleteGraphe();
 			graph.createGraphe();
-
 
 			List<Contraint> sigma = new ArrayList<Contraint>();
 
@@ -87,22 +99,25 @@ public class Main {
 			Contraint contraint17 = new Contraint("(x:Company), (y:Person)", "x.c = 3, y.f = 2, y.c = x.c, x.d = 4",
 					"x.id = y.id");
 
+
 			sigma.add(contraint1);
-			sigma.add(contraint2);
 			sigma.add(contraint3);
 			sigma.add(contraint4);
 			sigma.add(contraint5);
 			sigma.add(contraint6);
 			sigma.add(contraint7);
+			sigma.add(contraint2);
+
 			sigma.add(contraint8);
-			sigma.add(contraint9);
 			sigma.add(contraint10);
+			sigma.add(contraint9);
+
 			sigma.add(contraint11);
 			sigma.add(contraint12);
-			sigma.add(contraint13);
-			sigma.add(contraint14);
-			sigma.add(contraint15);
 			sigma.add(contraint16);
+			sigma.add(contraint14);
+			sigma.add(contraint13);
+			sigma.add(contraint15);
 			sigma.add(contraint17);
 
 			Chase.compute(graph, sigma);

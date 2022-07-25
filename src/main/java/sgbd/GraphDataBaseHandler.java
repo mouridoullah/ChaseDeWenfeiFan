@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package sgbd;
 
 import org.neo4j.driver.AuthTokens;
@@ -16,12 +19,21 @@ import org.neo4j.driver.util.Pair;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author bdvm
+ *
+ */
+
 public class GraphDataBaseHandler implements AutoCloseable {
 	private final Driver driver;
 	private final String uri = "bolt://localhost:7687";
 	private final String user = "neo4j";
 	private final String password = "password";
 	private final Config config;
+	
+	/**
+	 * 
+	 */
 
 	public GraphDataBaseHandler() {
 		config = Config.builder().withLogging(Logging.slf4j()).build();
@@ -62,23 +74,34 @@ public class GraphDataBaseHandler implements AutoCloseable {
 	}
 
 	public void init() {
-		String create = "CREATE (person4:Person {m:1, t:4})\n" +
-				"CREATE (person5:Person {w:2})\n" +
-				"CREATE (person3:Person {w:2})\n" +
-				"CREATE (person4)-[:WORKS_FOR]->(person5)\n" +
-				"CREATE (person5)-[:FRIEND]->(person3)\n"
+		String create = 
+				
+				"CREATE (p1:Person {m:1, t:4})\n" +
+				"CREATE (p2:Person {w:2})\n" +
+				"CREATE (p3:Person {w:2})\n" +
+				"CREATE (p4:Person {m:1})\n" +
+				"CREATE (p5:Person {w:2})\n" +
+				"CREATE (p6:Person {w:2})\n" +
+				"CREATE (p7:Person {w:2})\n" +
+				"CREATE (p1)-[:WORKS_FOR]->(p2)\n" +
+				"CREATE (p2)-[:FRIEND]->(p3)\n" +
+				"CREATE (p3)-[:WORKS_FOR]->(p4)\n" +
+				"CREATE (p4)-[:FRIEND]->(p5)\n" +
+				"CREATE (p5)-[:WORKS_FOR]->(p6)\n" +
+				"CREATE (p6)-[:FRIEND]->(p7)\n" 
 				+ "CREATE (person1:Person {firstname:'toto',s:1,a:1,b:2}),\n"
 				+ "(person2:Person {lastname:'titi',f:2,c:3,d:4}),\n"
 				+ "(company1:Company {alias:'Company1',p:5,a:1,b:2}),\n" + "(car:Car {brand:'Ferrari'}),\n"
-				+ "(animal:Cat {name:'Derby',k:4}),\n" + "(city1:City {name:'London',g:3,c:3,d:4}),\n"
+				+ "(animal:Cat {name:'Derby',k:4}),\n" + "(city1:City {name:'London',g:3,c:3,d:4}),\n" // 'Liverpool' pour test
 				+ "(person1)-[:WORKS_FOR {since:2015}]->(company1),\n"
-				+ "(person3)-[:FOLLOWS]->(person2),\n"
+				+ "(p4)-[:FOLLOWS]->(person2),\n"
 				+ "(person2)-[:WORKS_FOR {since:2018}]->(company1),\n" + "(company1)-[:HAS_HQ {since:2004}]->(city1),\n"
 				+ "(person1)-[:DRIVE {since:2017}]->(car),\n" + "(person2)-[:HAS {since:2013}]->(animal),\n"
 				+ "(company2:Company {name:'Company2', o:2,c:3,d:4}),\n"
 				+ "(city2:City {name:'Liverpool',o:2,c:3,d:4}),\n" + "(person2)-[:WORKS_FOR{since:2018}]->(company2),\n"
 				+ "(person1)-[:WORKS_FOR {since:2020}]->(person2),\n" + "(company2)-[:HAS_HQ{since:2007}]->(city2)\n"
-				+ "CREATE (person5)-[:LIVE{since:2000}]->(city2)";
+				+ "CREATE (p7)-[:LIVE{since:2000}]->(city2)";
+				
 		this.execute(this.getDriver(), create);
 	}
 

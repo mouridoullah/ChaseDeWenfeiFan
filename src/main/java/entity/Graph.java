@@ -1,10 +1,22 @@
+/**
+ * 
+ */
 package entity;
 
 import sgbd.GraphDataBaseHandler;
 
+/**
+ * @author bdvm
+ *
+ */
+
 public class Graph implements AutoCloseable  {
 	private String create;
 	private GraphDataBaseHandler databaseHanlder;
+	
+	/**
+	 * 
+	 */
 	
 	public Graph() {
 		databaseHanlder = new GraphDataBaseHandler();
